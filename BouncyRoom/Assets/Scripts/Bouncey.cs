@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Bouncey : MonoBehaviour {
 
@@ -12,17 +13,34 @@ public class Bouncey : MonoBehaviour {
     private float minVelocity = 10f;
 
     private Vector3 lastFrameVelocity;
-    private Rigidbody rb;
+    private Rigidbody ballRigidbody;
+    private GameObject ball;
 
     private void OnEnable()
     {
-        rb = GetComponent<Rigidbody>();
-        rb.velocity = initialVelocity;
+        ball = GameObject.FindGameObjectWithTag("ball");
+        ballRigidbody = ball.GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    private void OnMouseUp()
     {
-        lastFrameVelocity = rb.velocity;
+
+        ballRigidbody.isKinematic = false;
+        ballRigidbody.velocity = initialVelocity;
+    }
+
+    void Update()
+    {
+        if (ballRigidbody.isKinematic)
+        {
+            lastFrameVelocity = ball.transform.position;
+        } else
+        {
+            lastFrameVelocity = ballRigidbody.velocity;
+
+        }
+
+        Debug.Log("lastFrameVelocity On Update: " + lastFrameVelocity);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -36,6 +54,6 @@ public class Bouncey : MonoBehaviour {
         var direction = Vector3.Reflect(lastFrameVelocity.normalized, collisionNormal);
 
         Debug.Log("Out Direction: " + direction);
-        rb.velocity = direction * Mathf.Max(speed, minVelocity);
+        ballRigidbody.velocity = direction * Mathf.Max(speed, minVelocity);
     }
 }
